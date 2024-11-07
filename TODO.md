@@ -8,7 +8,7 @@ on submit
     [] load next question
 
 ### Data creation
-[] randomise data for each chart
+[x] randomise data for each chart
 [] determine chart type
 [] plot data onto chart
 [] display chart on website
