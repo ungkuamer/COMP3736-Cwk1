@@ -1,7 +1,7 @@
 from app import app
 from .functions import generate_random_data
 
-from flask import render_template, render_template_string 
+from flask import render_template, render_template_string
 import io
 import base64
 import matplotlib
@@ -10,16 +10,19 @@ import numpy as np
 
 matplotlib.use('Agg')
 
+
 @app.route('/')
 def home():
     return render_template('index.html')
 
+
 @app.route('/answer')
 def answer():
     school_data = generate_random_data()
-    
+
     months = list(range(1, 13))
-    months_name = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    months_name = ["Jan", "Feb", "Mar", "Apr", "May",
+                   "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     schools_name = ["School " + str(i) for i in range(10)]
 
     # Scatter Plot
@@ -43,12 +46,13 @@ def answer():
     plt.imshow(school_data, cmap="viridis", aspect="auto")
     for i in range(len(schools_name)):
         for j in range(len(months)):
-            plt.text(j, i, school_data[i][j], ha="center", va="center", color="w")
+            plt.text(j, i, school_data[i][j],
+                     ha="center", va="center", color="w")
 
     plt.xticks(ticks=np.arange(len(months)), labels=months_name, rotation=45)
     plt.yticks(ticks=np.arange(len(schools_name)), labels=schools_name)
     plt.title("Heatmap of Random Data for Schools Across Months")
-    
+
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
     buf.seek(0)
