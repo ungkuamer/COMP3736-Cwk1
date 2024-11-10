@@ -1,6 +1,10 @@
-from question import Question
+from .question import Question
 
 from random import randint, choice, randrange
+import matplotlib.pyplot as plt
+import numpy as np
+import io
+import base64
 
 
 def generate_random_data():
@@ -95,7 +99,6 @@ def question_generator(random_data):
 
     if question_num == 2:
         question = f"What is the maximum number of students absent in School {school_num}?"
-        print(random_data[school_num-1])
         answer = max(random_data[school_num-1])
 
         answer_choice, answer_pos = generate_random_answer(answer)
@@ -104,7 +107,6 @@ def question_generator(random_data):
 
     if question_num == 3:
         question = f"What is the minimum number of students absent in School {school_num}?"
-        print(random_data[school_num-1])
         answer = min(random_data[school_num-1])
 
         answer_choice, answer_pos = generate_random_answer(answer)
@@ -137,11 +139,10 @@ def question_generator(random_data):
 
         new_list = [sum(random_data[i][month] for i in range(10))
                     for month in range(12)]
-        print(new_list)
         month_choosen_num = new_list.index(min(new_list))
         answer = month[new_list.index(min(new_list))]
 
-        answer_pos, answer_choice = generate_random_answer_month(
+        answer_choice, answer_pos = generate_random_answer_month(
             month_choosen_num, month)
 
         return Question(question, answer_pos, answer_choice)
@@ -150,10 +151,59 @@ def question_generator(random_data):
         question = f"Which month has the highest number of total absences?"
         new_list = [sum(random_data[i][month] for i in range(10))
                     for month in range(12)]
-        print(new_list)
         month_choosen_num = new_list.index(max(new_list))
 
-        answer_pos, answer_choice = generate_random_answer_month(
+        answer_choice, answer_pos = generate_random_answer_month(
             month_choosen_num, month)
 
         return Question(question, answer_pos, answer_choice)
+
+
+def scatter_plot(random_data):
+    months = list(range(1, 13))
+    months_name = ["Jan", "Feb", "Mar", "Apr", "May",
+                   "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    plt.figure(figsize=(10, 6))
+    for i, school in enumerate(random_data):
+        plt.scatter(months, school, label=f'Sc {i}', alpha=0.7)
+    plt.xlabel("Month")
+    plt.ylabel("Random Value")
+    plt.title(
+        "Scatter Plot of Number of Students Absences for Schools Across Months")
+    plt.xticks(months, months_name)
+    plt.legend(loc="upper right", bbox_to_anchor=(1.15, 1))
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plot = base64.b64encode(buf.getvalue()).decode('utf8')
+    plt.close()
+
+    return plot
+
+
+def heatmap_plot(random_data):
+    months = list(range(1, 13))
+    months_name = ["Jan", "Feb", "Mar", "Apr", "May",
+                   "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    schools_name = ["School " + str(i) for i in range(10)]
+
+    plt.figure(figsize=(10, 6))
+    plt.imshow(random_data, cmap="viridis", aspect="auto")
+    for i in range(len(schools_name)):
+        for j in range(len(months)):
+            plt.text(j, i, random_data[i][j],
+                     ha="center", va="center", color="w")
+
+    plt.xticks(ticks=np.arange(len(months)), labels=months_name, rotation=45)
+    plt.yticks(ticks=np.arange(len(schools_name)), labels=schools_name)
+    plt.title("Heat Map of Number of Students Absences for Schools Across Months")
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', bbox_inches='tight')
+    buf.seek(0)
+    plot = base64.b64encode(buf.getvalue()).decode('utf8')
+    plt.close()
+
+    return plot

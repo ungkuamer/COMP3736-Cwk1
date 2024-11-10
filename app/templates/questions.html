@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="flex-grow pt-5 max-w-5xl lg:max-w-4xl md:max-w-3xl sm:max-w-xl mx-auto">
+    <div class="container flex flex-col items-center mx-auto pt-10">
+        <img src="data:image/png;base64,{{ plot }}"/>
+        <div class="mt-5">
+            <a> {{ count }} </a>
+            <p class="text-lg"> {{ question }}</p>
+            <div class="mt-5 grid grid-cols-2 gap-5 text-center">
+                {% for choice in choices %}
+                <form action="{{ url_for('submit_check') }}" method="post">
+                    <input type="hidden" name="selected_choice" value="{{ choice }}">
+                    <button type="submit" class="border-black border-2 px-3 py-2 hover:italic w-full">
+                        {{ choice }}
+                    </button>
+                </form>
+                {% endfor %}
+            </div>
+            <div>
+                {% if feedback %}
+                <div class="mt-3 text-lg font-semibold">{{ feedback }}</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

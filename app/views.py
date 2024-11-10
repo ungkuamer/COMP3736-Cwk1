@@ -1,7 +1,8 @@
 from app import app
-from .functions import generate_random_data
+from .functions import generate_random_data, question_generator, scatter_plot, heatmap_plot
+from .question import Question
 
-from flask import render_template, render_template_string
+from flask import render_template, session, redirect, url_for, request
 import io
 import base64
 import matplotlib
@@ -14,6 +15,43 @@ matplotlib.use('Agg')
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
+@app.route('/start')
+def start():
+    random_data = generate_random_data()
+
+    session['count'] = session.get('count', 0) + 1
+
+    if session.get('count') >= 11:
+        session.pop('count')
+        return redirect(url_for('home'))
+
+    if session['count'] % 2 == 0:
+        plot = scatter_plot(random_data)
+    else:
+        plot = heatmap_plot(random_data)
+
+    question = question_generator(random_data)
+    session['correct_answer'] = question.answer_choice[question.answer_pos]
+
+    feedback = session.pop('feedback', None)
+
+    return render_template('questions.html', plot=plot, question=question.question, choices=question.answer_choice, feedback=feedback, count=session.get('count'))
+
+
+@app.route('/check', methods=['POST'])
+def submit_check():
+    selected_choice = request.form.get('selected_choice')
+
+    correct_answer = session.get('correct_answer')
+
+    if selected_choice == correct_answer:
+        session['feedback'] = "Correct!"
+    else:
+        session['feedback'] = "Incorrect. Try again!"
+
+    return redirect(url_for('start'))
 
 
 @app.route('/answer')
