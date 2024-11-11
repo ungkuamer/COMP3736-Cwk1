@@ -4,8 +4,13 @@
     <div class="container flex flex-col items-center mx-auto pt-10">
         <img src="data:image/png;base64,{{ plot }}"/>
         <div class="mt-5">
-            <a> {{ count }} </a>
-            <p class="text-lg"> {{ question }}</p>
+            <div class="flex flex-col">
+                <a> User ID: {{ user }}</a>
+                <a> Question Num: {{ count }} </a>
+                <a> Prev. Ques Time: {{ time }}</a>
+                <a class="hover:underline" href="/end"> End Question </a>
+            </div>
+            <p class="text-lg mt-5"> {{ question }}</p>
             <div class="mt-5 grid grid-cols-2 gap-5 text-center">
                 {% for choice in choices %}
                 <form action="{{ url_for('submit_check') }}" method="post">

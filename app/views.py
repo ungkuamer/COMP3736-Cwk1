@@ -8,8 +8,14 @@ import base64
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
+import firebase_admin
+from firebase_admin import firestore
+from datetime import datetime, timezone
 
 matplotlib.use('Agg')
+
+firebase_app = firebase_admin.initialize_app()
+db = firestore.client()
 
 
 @app.route('/')
@@ -23,9 +29,18 @@ def start():
 
     session['count'] = session.get('count', 0) + 1
 
-    if session.get('count') >= 11:
+    if session.get('count') > 20:
         session.pop('count')
+        session.pop('user')
+        session.pop('reaction_time')
         return redirect(url_for('home'))
+
+    if 'user' not in session:
+        add_user = db.collection("participants").add(
+            {"start_time": datetime.now(timezone.utc)})
+        session['user'] = add_user[1].id
+
+    user = session.get('user')
 
     if session['count'] % 2 == 0:
         plot = scatter_plot(random_data)
@@ -37,21 +52,57 @@ def start():
 
     feedback = session.pop('feedback', None)
 
-    return render_template('questions.html', plot=plot, question=question.question, choices=question.answer_choice, feedback=feedback, count=session.get('count'))
+    session['question_start_time'] = datetime.now()
+
+    if 'reaction_time' in session:
+        time = session.get('reaction_time')
+    else:
+        time = None
+
+    return render_template('questions.html', plot=plot, question=question.question, choices=question.answer_choice, feedback=feedback, count=session.get('count'), user=user, time=time)
 
 
 @app.route('/check', methods=['POST'])
 def submit_check():
+    start_time = session.get('question_start_time')
+    if start_time:
+        reaction_time = (datetime.now(timezone.utc) -
+                         start_time).total_seconds()
+        session['reaction_time'] = reaction_time
+
     selected_choice = request.form.get('selected_choice')
 
     correct_answer = session.get('correct_answer')
 
-    if selected_choice == correct_answer:
-        session['feedback'] = "Correct!"
+    user_id = session.get('user')
+    curr_ques = session.get('count')
+    question_num = "q" + str(curr_ques)
+
+    if curr_ques % 2 == 0:
+        question_type = 1
     else:
-        session['feedback'] = "Incorrect. Try again!"
+        question_type = 2
+
+    if selected_choice == correct_answer:
+        answer = True
+    else:
+        answer = False
+
+    data = {question_num: {"answer": answer,
+                           "res_time": reaction_time, "type": question_type}}
+    db.collection("participants").document(user_id).set(data, merge=True)
 
     return redirect(url_for('start'))
+
+
+@app.route('/end')
+def end():
+    session.pop('count')
+    session.pop('user')
+    if 'reaction_time' in session:
+        session.pop('reaction_time')
+
+    return redirect(url_for('home'))
 
 
 @app.route('/answer')
