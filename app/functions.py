@@ -82,7 +82,7 @@ def generate_random_answer_month(answer, month):
 
 
 def question_generator(random_data):
-    question_num = randint(1, 7)
+    question_num = randint(4, 7)
 
     school_num = randint(1, 10)
     month = ["January", "February", "March", "April", "May", "June",
@@ -166,13 +166,17 @@ def scatter_plot(random_data):
 
     plt.figure(figsize=(10, 6))
     for i, school in enumerate(random_data):
-        plt.scatter(months, school, label=f'Sc {i}', alpha=0.7)
+        plt.scatter(months, school, label=f'Sc {i+1}', alpha=0.7)
     plt.xlabel("Month")
     plt.ylabel("Random Value")
     plt.title(
         "Scatter Plot of Number of Students Absences for Schools Across Months")
     plt.xticks(months, months_name)
     plt.legend(loc="upper right", bbox_to_anchor=(1.15, 1))
+
+    plt.grid(which='major', linestyle='-', linewidth=0.5, color='gray')
+    plt.minorticks_on()
+    plt.grid(which='minor', linestyle=':', linewidth=0.5, color='lightgray')
 
     buf = io.BytesIO()
     plt.savefig(buf, format='png', bbox_inches='tight')
@@ -187,7 +191,7 @@ def heatmap_plot(random_data):
     months = list(range(1, 13))
     months_name = ["Jan", "Feb", "Mar", "Apr", "May",
                    "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    schools_name = ["School " + str(i) for i in range(10)]
+    schools_name = ["School " + str(i+1) for i in range(10)]
 
     plt.figure(figsize=(10, 6))
     plt.imshow(random_data, cmap="viridis", aspect="auto")

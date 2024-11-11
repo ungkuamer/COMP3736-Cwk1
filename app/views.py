@@ -47,6 +47,9 @@ def start():
     else:
         plot = heatmap_plot(random_data)
 
+    if ("correct_answer") in session:
+        session.pop("correct_answer")
+
     question = question_generator(random_data)
     session['correct_answer'] = question.answer_choice[question.answer_pos]
 
