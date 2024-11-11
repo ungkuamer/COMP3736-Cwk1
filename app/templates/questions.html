@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-<div class="flex-grow pt-5 max-w-5xl lg:max-w-4xl md:max-w-3xl sm:max-w-xl mx-auto">
+<div id="blank-screen" style="display:none; background-color:white; height: 100vh; width: 100vw; position: fixed; top: 0; left: 0; z-index:9999;"></div>
+
+<div id="content" class="flex-grow pt-5 max-w-5xl lg:max-w-4xl md:max-w-3xl sm:max-w-xl mx-auto">
+<!-- <div class="flex-grow pt-5 max-w-5xl lg:max-w-4xl md:max-w-3xl sm:max-w-xl mx-auto"> -->
     <div class="container flex flex-col items-center mx-auto pt-10">
         <img src="data:image/png;base64,{{ plot }}"/>
         <div class="mt-5">
@@ -28,4 +31,21 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const blankScreen = document.getElementById("blank-screen");
+        const content = document.getElementById("content");
+
+        content.style.display = "none";
+        blankScreen.style.display = "block";
+
+        setTimeout(() => {
+
+            blankScreen.style.display = "none"; // to hide blank screen
+            content.style.display = "block"; // show content
+        }, 1000);
+    });
+</script>
+
 {% endblock content %}

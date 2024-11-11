@@ -202,6 +202,7 @@ def heatmap_plot(random_data):
 
     plt.xticks(ticks=np.arange(len(months)), labels=months_name, rotation=45)
     plt.yticks(ticks=np.arange(len(schools_name)), labels=schools_name)
+    plt.colorbar()
     plt.title("Heat Map of Number of Students Absences for Schools Across Months")
 
     buf = io.BytesIO()
